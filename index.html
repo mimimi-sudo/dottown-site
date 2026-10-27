@@ -3800,12 +3800,14 @@ showScreen((location.hash||'').slice(1)||(unlocked()?'home':'make'));
 /* 匿名の訪問・住人データをスプレッドシートに送信する */
 (function(){
   var COLLECTOR_URL = 'https://script.google.com/macros/s/AKfycbwN_G_wTPo7O77xFXQzqYXBCHP_qVdyObey-YeKCb2yJPDJ_ccO3JyqIQG2J9o2J0dTHA/exec';
+  var COLLECTOR_TOKEN = 'pochit-sagr-9x4w2mq7';
   var LS_VID = 'dot.visitorId', LS_SEEN = 'dot.firstSeen';
   function uid(){ return Math.random().toString(36).slice(2,8) + Date.now().toString(36).slice(-4); }
   function vid(){ try{ var v=localStorage.getItem(LS_VID); if(!v){v=uid();localStorage.setItem(LS_VID,v);} return v; }catch(e){ return 'noLS'; } }
   function firstVisit(){ try{ if(localStorage.getItem(LS_SEEN)) return false; localStorage.setItem(LS_SEEN, new Date().toISOString()); return true; }catch(e){ return true; } }
-  function post(p){ if(!COLLECTOR_URL) return; try{ fetch(COLLECTOR_URL,{method:'POST',mode:'no-cors',keepalive:true,headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(p)}); }catch(e){} }
-  function beacon(p){ if(!COLLECTOR_URL) return; try{ if(navigator.sendBeacon){ navigator.sendBeacon(COLLECTOR_URL,new Blob([JSON.stringify(p)],{type:'text/plain;charset=utf-8'})); }else{ post(p); } }catch(e){} }
+  function withToken(p){ p.token = COLLECTOR_TOKEN; return p; }
+  function post(p){ if(!COLLECTOR_URL) return; try{ fetch(COLLECTOR_URL,{method:'POST',mode:'no-cors',keepalive:true,headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(withToken(p))}); }catch(e){} }
+  function beacon(p){ if(!COLLECTOR_URL) return; try{ if(navigator.sendBeacon){ navigator.sendBeacon(COLLECTOR_URL,new Blob([JSON.stringify(withToken(p))],{type:'text/plain;charset=utf-8'})); }else{ post(p); } }catch(e){} }
   var startedAt = Date.now();
   var VID = vid(), FV = firstVisit();
   post({type:'visit', visitorId:VID, firstVisit:FV, lang:(navigator.language||''), screen:(screen.width||0)+'x'+(screen.height||0), ua:(navigator.userAgent||'').slice(0,200)});
