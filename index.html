@@ -531,7 +531,7 @@ input[type=range]{accent-color:var(--pink);width:160px;max-width:100%}
     </div>
     <div class="card">
       <h2 class="sec"><svg><use href="#spk-fill"/></svg>セーブデータ<small>キャラ・思い出・アイテム・マップをまとめて保存</small></h2>
-      <div class="row"><button class="btn soft" id="dataExport">書き出す</button><button class="btn" id="dataImport">読み込む</button><input type="file" id="dataFile" accept=".json,application/json" hidden></div>
+      <div class="row"><button class="btn soft" id="dataExport">書き出す</button><button class="btn" id="dataImport">読み込む</button><button class="btn soft" id="dataHelp" aria-label="セーブデータのつかいかた">？つかいかた</button><input type="file" id="dataFile" accept=".json,application/json" hidden></div>
       <p class="kv">データはこのブラウザの中にだけ保存されています。ときどき「書き出す」でファイルにしておくと、ブラウザのデータを消したときや、ほかの端末でも「読み込む」で元にもどせます。</p>
     </div>
     <div class="card">
@@ -2330,6 +2330,29 @@ $('#dataImport').onclick=()=>{openDlg('セーブデータを読み込む',b=>{
     h('div',{class:'row'},h('button',{class:'btn primary',on:()=>{$('#dataFile').value='';$('#dataFile').click();}},'ファイルを選ぶ')),ta,
     h('div',{class:'row'},h('button',{class:'btn soft',on:()=>{if(!ta.value.trim()){toast('テキストを貼りつけてね');return;}importData(ta.value);}},'テキストから読み込む')));});};
 $('#dataFile').onchange=async e=>{const f=e.target.files&&e.target.files[0];if(!f)return;importData(await f.text());};
+$('#dataHelp').onclick=()=>openDlg('セーブデータのつかいかた',b=>{
+  b.append(
+    h('p',{class:'lead'},'セーブデータは、このブラウザの中にだけ保存されています。ブラウザのデータを消したり、ほかの端末で続きを遊びたいときのために、ファイルや文字列として外に取り出せます。'),
+    h('p',{class:'kv'},h('b',{},'▶ 書き出す（バックアップ）')),
+    h('p',{class:'kv'},'「書き出す」を押すと、2つの方法から選べます。'),
+    h('p',{class:'kv'},'・',h('b',{},'ファイルに保存'),'：「ぽちっとタウン_セーブ_日付.json」というファイルがダウンロードされます。'),
+    h('p',{class:'kv'},'・',h('b',{},'テキストでコピー'),'：データが長い文字列としてコピーされます。メモアプリやLINEの自分あてメッセージなどに貼りつけて保存しておけます。'),
+    h('p',{class:'kv'},h('b',{},'▶ スマホで保存するとき')),
+    h('p',{class:'kv'},'・',h('b',{},'iPhone（Safari）'),'：ダウンロードしたファイルは「ファイル」アプリの「ダウンロード」にあります。'),
+    h('p',{class:'kv'},'・',h('b',{},'Android（Chrome）'),'：ダウンロードしたファイルは「Files」アプリや「Download」フォルダにあります。'),
+    h('p',{class:'kv'},'うまく保存できないときは「テキストでコピー」のほうが確実です。'),
+    h('p',{class:'kv'},h('b',{},'▶ 読み込む（もとにもどす）')),
+    h('p',{class:'kv'},'「読み込む」を押して、2つの方法から選びます。'),
+    h('p',{class:'kv'},'・',h('b',{},'ファイルを選ぶ'),'：保存しておいた .json ファイルを選びます。'),
+    h('p',{class:'kv'},'・',h('b',{},'テキストから読み込む'),'：コピーしておいた文字列を貼りつけて読み込みます。'),
+    h('p',{class:'kv'},'※ 読み込むと、いまあるデータは上書きされます。心配なときは、先に「書き出す」でいまのデータを保存しておきましょう。'),
+    h('p',{class:'kv'},h('b',{},'▶ 友だちに自分の町を見せたいとき')),
+    h('p',{class:'kv'},'1. 「書き出す」→「テキストでコピー」でコピー。'),
+    h('p',{class:'kv'},'2. LINEやメール、Xなどで友だちに送る。'),
+    h('p',{class:'kv'},'3. 友だちは「読み込む」→テキスト欄に貼りつけて「テキストから読み込む」で、同じ町が見られます。'),
+    h('div',{class:'row'},h('button',{class:'btn primary',on:closeDlg},'わかった'))
+  );
+});
 function importData(txt){
   let o=null;try{o=JSON.parse(txt.trim());}catch(err){}
   if(!o||o.app!=='pochitto-town'||!o.data||typeof o.data!=='object'){toast('ぽちっとタウンのセーブデータではないようです');return;}
