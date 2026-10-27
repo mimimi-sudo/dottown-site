@@ -1312,23 +1312,17 @@ $('#mClose').onclick=closeModal;
 $('#modal').addEventListener('click',e=>{if(e.target.id==='modal')closeModal();});
 document.querySelectorAll('#mScale button').forEach(b=>b.onclick=()=>{mScale=+b.dataset.s;updateExport();});
 $('#mBg').onchange=updateExport;
-const IN_CLAUDE=!!(window.claude&&window.claude.use);
-let dlNS;const dlReady=IN_CLAUDE?window.claude.use('downloads').then(ns=>{dlNS=ns;return ns;}).catch(()=>null):Promise.resolve(null);
 $('#mSave').onclick=async()=>{
   const st=expState||state;const src=$('#mImg').src;
   const blob=src&&src.startsWith('data:')?du2blob(src):await new Promise(res=>exportCanvas(mScale,$('#mBg').checked,st).toBlob(res,'image/png'));
   const name=((st.name||'ぽちっとタウン').replace(/[\\/:*?"<>|]/g,'')||'chara')+'_x'+mScale+'.png';
   saveBlob(blob,name);
 };
-/* save: Claude's downloads when available, otherwise a normal browser download */
 const IS_MOBILE=/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)||(navigator.maxTouchPoints>1&&/Mac/.test(navigator.platform||''));
 function du2blob(du){const [h,b64]=du.split(',');const mime=(h.match(/data:([^;]+)/)||[])[1]||'image/png';const bin=atob(b64),u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);return new Blob([u],{type:mime});}
 async function shareFile(blob,name){try{if(!navigator.canShare||!navigator.share)return null;const file=new File([blob],name,{type:blob.type||'application/octet-stream'});if(!navigator.canShare({files:[file]}))return null;await navigator.share({files:[file]});return 'ok';}catch(e){return e&&e.name==='AbortError'?'cancel':null;}}
 async function saveBlob(blob,name,okMsg){okMsg=okMsg||'画像を保存しました';
   if(IS_MOBILE&&navigator.share){const r=await shareFile(blob,name);if(r==='ok'){toast(okMsg);return true;}if(r==='cancel')return true;}
-  const ns=IN_CLAUDE?(dlNS!==undefined?dlNS:await dlReady):null;
-  if(ns){try{await ns.save({filename:name,data:blob});toast(okMsg);return true;}
-    catch(e){const c=e&&e.code;if(c==='declined')return true;if(c==='rate_limited'){toast('少し待ってからもう一度おしてね');return true;}}}
   try{const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=name;a.rel='noopener';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),4000);toast(okMsg);return true;}
   catch(e){toast('保存できませんでした');return false;}
 }
@@ -3580,7 +3574,7 @@ $('#evBtn').onclick=()=>{if(ev){toast('いまイベント中です');return;}if(
 document.addEventListener('visibilitychange',()=>{if(document.hidden)stopLoop();else if(screen==='home')startLoop();});
 
 /* ===== share ===== */
-const SHARE_URL=(!IN_CLAUDE&&/^https?:$/.test(location.protocol))?location.origin+location.pathname:'https://claude.ai/artifact/H1cei4yZBYtMM5tCYYUfy7';
+const SHARE_URL=location.origin+location.pathname;
 function saveImgBtn(du,name){return h('button',{class:'btn soft',style:'margin-top:8px',on:async()=>{try{const bl=du2blob(du);saveBlob(bl,name);}catch(e){toast('画像を保存できませんでした');}}},'画像を保存');}
 function openShare(mem){
   const names=residents.map(r=>r.name);
