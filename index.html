@@ -3036,7 +3036,7 @@ const AFTERLINE={
 function afterLine(e){
   const key=e.k==='rain'&&scene==='snow'?'snowfall':e.k,L=AFTERLINE[key];if(!L||!residents.length)return;
   if(e.k==='fireworks'||e.k==='meteor'){for(let i=0;i<residents.length;i++)for(let j=i+1;j<residents.length;j++)affAdd(residents[i],residents[j],2);}
-  const who=pick(residents).name,line=pick(L).replace('@',who);
+  const line=pick(L).replace('@','');
   setTimeout(()=>{if(screen==='home'||true)addLog(line);},1200);
 }
 function endEvent(){if(ev&&!ev.aborted){try{afterLine(ev);}catch(e){}}ev=null;evNext=40+Math.random()*50;$('#evTag').hidden=true;}
