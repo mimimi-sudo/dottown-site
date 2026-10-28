@@ -2372,6 +2372,8 @@ let affTick=0,pendingPhoto=null;
 function heartBurst(x,y,n,shape){for(let k=0;k<(n||5);k++)particles.push({x:x+(Math.random()-.5)*14,y:y+(Math.random()-.5)*6,vx:(Math.random()-.5)*10,vy:-10-Math.random()*10,col:shape==='note'?'#8b6fe8':'#ff6fae',life:1.2+Math.random()*.6,float:1,shape:shape||'heart'});}
 
 /* ===== personality-specific "best friend" (♥4) moments ===== */
+/* once a personality's ult fires, that personality can't fire another ult for 600s */
+const ULTCD={};
 function makePortrait(b,a){
   const W2=64,H2=76,cv=document.createElement('canvas');cv.width=W2*2;cv.height=H2*2;const c=cv.getContext('2d');c.imageSmoothingEnabled=false;c.scale(2,2);
   c.fillStyle='#8b5a3c';c.fillRect(0,0,W2,H2-10);c.fillStyle='#c08f63';c.fillRect(2,2,W2-4,H2-14);c.fillStyle='#fffdf6';c.fillRect(5,5,W2-10,H2-20);
@@ -2463,7 +2465,7 @@ function startDuo(k,a,b){
   if(k==='lap'){D.dur=7;const s1=Math.random()<.5;D.sit=s1?a:b;D.lie=s1?b:a;}
   if(k==='piggy'){D.dur=9;const s1=Math.random()<.5;D.car=s1?a:b;D.rid=s1?b:a;}
   if(k==='shy'){D.dur=5;}
-  if(k==='ult'){D.ty=a.type;}
+  if(k==='ult'){D.ty=a.type;ULTCD[a.type]=nowT+600;}
   if(k==='chat'){D.dur=11+Math.random()*4;D.ph=1;if(b.wasSitDuo)b.pose='sit';a.dir=Math.sign(b.x-a.x)||a.dir;b.dir=-a.dir;emote(a,meetEmote(a.p),1.8);if(Math.random()<.4)addLog(a.name+'と'+b.name+(a.p.F?'がなかよくおしゃべりしている':'が話しこんでいる'));}
   if(k==='nod'){D.tx=clampX(b.x+(a.x<b.x?34:-34));}
   if(k==='hand'){const mid=Math.max(XMIN+9,Math.min(XMAX-9,(a.x+b.x)/2));const l=a.x<=b.x;D.L=l?a:b;D.R=l?b:a;D.lx=mid-8;D.dur=10;}
@@ -2696,7 +2698,7 @@ function stepResident(r,dt){
     duoO=duoOK[Math.floor(Math.random()*duoOK.length)];const q=duoO.p,x=Math.random();
     const lv=affLv(r,duoO);
     if(Math.random()<((isET(r)||isET(duoO))?0.16:0.05)*(lv>=3?0.5:1))duoK='fight';
-    else if(lv>=4&&ULT[r.type]&&Math.random()<0.22)duoK='ult';
+    else if(lv>=4&&ULT[r.type]&&(ULTCD[r.type]||0)<=nowT&&Math.random()<0.22)duoK='ult';
     else if(lv>=2&&duoO.act==='sit'&&Math.random()<0.6)duoK='sitby';
     else if(Math.random()<0.45)duoK=affEvent(lv);
     else if(p.E&&!p.J&&x<0.35)duoK='tease';
